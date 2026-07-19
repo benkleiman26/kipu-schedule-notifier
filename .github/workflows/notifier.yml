@@ -1,0 +1,60 @@
+name: Kipu Schedule Notifier
+
+# Cron below runs in UTC. Adjust to match your client's local schedule —
+# see SETUP.md for a worked example and how daylight saving affects this.
+#
+# Default: every 30 min, 07:00-14:30 Mountain Time, plus 15:00 and 20:00
+# pickups (13:00-21:00 UTC on the half hour, then 21:00 UTC, then 02:00 UTC
+# next day). ~18 runs/day x ~2 min each, well under Actions' free tier.
+
+on:
+  schedule:
+    - cron: "0,30 13-20 * * *"
+    - cron: "0 21 * * *"
+    - cron: "0 2 * * *"
+  workflow_dispatch: {}
+
+concurrency:
+  group: kipu-notifier
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-v1
+
+      - name: Install Chromium (if not cached)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: python -m playwright install --with-deps chromium
+
+      - name: Install Chromium deps only (when cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: python -m playwright install-deps chromium
+
+      - name: Run notifier
+        env:
+          KIPU_USER: ${{ secrets.KIPU_USER }}
+          KIPU_PASSWORD: ${{ secrets.KIPU_PASSWORD }}
+          GCAL_SA_JSON: ${{ secrets.GCAL_SA_JSON }}
+          GCAL_CALENDAR_ID: ${{ secrets.GCAL_CALENDAR_ID }}
+        run: python notifier.py

@@ -69,7 +69,12 @@ def load_config():
     required_fields = ["kipu_base_url", "kipu_account_id"]
     missing = [f for f in required_fields if not raw.get(f) or "CHANGE" in str(raw.get(f))]
     if missing:
-        sys.exit(f"config.json still has placeholder values for: {missing} — see SETUP.md")
+        # Not configured yet (e.g. the template repo itself, or a fresh copy
+        # before setup is finished) — exit cleanly rather than failing the
+        # scheduled run, since this is an expected state, not an error.
+        print(f"config.json still has placeholder values for: {missing} — "
+              f"skipping run until configured (see SETUP.md).")
+        sys.exit(0)
 
     base_url = raw["kipu_base_url"].rstrip("/")
     return {

@@ -5,18 +5,16 @@
   "timezone": "America/Denver",
 
   "reminder_minutes": 30,
-  "skip_reminder_names": ["Vitals & Med Pass in Nursing"],
+  "skip_reminder_names": [],
 
   "default_event_minutes": 60,
   "short_event_minutes": 15,
-  "short_event_hint": "Vitals & Med Pass",
-  "two_hour_slots": ["08:00 am", "01:00 pm", "03:00 pm"],
+  "short_event_hint": "",
+  "two_hour_slots": [],
 
   "standing_events": [
-    {"name": "Breakfast", "start": "07:30", "end": "09:00"},
-    {"name": "Lunch",     "start": "11:45", "end": "13:00"},
-    {"name": "Dinner",    "start": "17:30", "end": "19:00"},
-    {"name": "Gym",       "start": "06:00", "end": "07:00"},
-    {"name": "Gym",       "start": "16:30", "end": "18:00"}
+    {"name": "Breakfast", "start": "08:00", "end": "09:00"},
+    {"name": "Lunch",     "start": "12:00", "end": "13:00"},
+    {"name": "Dinner",    "start": "18:00", "end": "19:00"}
   ]
 }
